@@ -1,5 +1,5 @@
 #####################################################
-#         Arran Build Engine Version 1.2.0          #
+#         Arran Build Engine Version 1.3.0          #
 #####################################################
 #             (c) James S Renwick 2014              #
 #####################################################
@@ -19,8 +19,8 @@ try:
         sys.dont_write_bytecode = False
     else:
         from properties import *
-except:
-    pass
+except Exception as e:
+    print("Error loading properties file: "+str(e))
 
 # ======== Provides colourising for console output ==========
 from colorama import Back, Fore, Style, init as colorama_init
@@ -33,15 +33,22 @@ print(Style.BRIGHT)
 print ("""
 __________Arran Build System__________
 
-Version 1.0.0 (c) James S Renwick 2014
+Version 1.3.0 (c) James S Renwick 2014
 """)
 
+if globals().has_key("PROJECT_NAME"):
+    print("Building Project '%s'"%PROJECT_NAME)
+    
 
 # Contains the build targets
 __TARGETS = {}
 
 # Set the default verbosity
 VERBOSITY = 1
+
+# Default fail on error to True
+if not globals().has_key("FAILONERROR"):
+    FAILONERROR = True
 
 # Cygwin stuff
 os.environ["CYGWIN"] = "nodosfilewarning"
@@ -94,7 +101,11 @@ def start_process(args):
         log(Style.NORMAL+line+Style.BRIGHT, LogLevel.Output)
     for line in err.splitlines():
         log(Style.NORMAL+Fore.RED+line+Fore.RESET+Style.BRIGHT, LogLevel.Output)
-        
+
+    if globals()["FAILONERROR"] and proc.returncode != 0:
+        raise Exception(("error : Execution returned code %s. " %proc.returncode)
+    + "Set FAILONERROR=False to ignore non-zero codes.")
+    
     return proc.returncode
 
 class FileFilter:
@@ -157,8 +168,9 @@ def search_path(file):
                 if os.path.exists(p+ext):
                     output = p+ext
                     break
-        # Linux/OSX is more difficult - I'll ignore this for now.
-        # The paths will have to match perfectly or be given as
+        # Linux/OSX is more difficult to auto-add extensions
+        # - I'll ignore this for now.
+        # The filenames will have to match perfectly or be given as
         # properties.
     return output
 
@@ -210,6 +222,18 @@ def get_start_target():
         start_target = "main"
         
     return start_target
+
+def get_files(srcpaths):
+    output = {}
+    for path in srcpaths:
+        files = FileFilter(path).categorise(INCLUDES, EXCLUDES)
+
+        for cat in files:
+            if output.has_key(cat):
+                output[cat].extend(files[cat])
+            else:
+                output[cat] = files[cat]
+    return output
 
 # ==================================================
 if __name__ == "__main__":
