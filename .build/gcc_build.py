@@ -1,5 +1,5 @@
 #####################################################
-#               GCC TOOLCHAIN HELPER                #
+#        GCC TOOLCHAIN HELPER VERSION 1.0.2         #
 #####################################################
 #             (c) James S Renwick 2014              #
 #####################################################
@@ -116,6 +116,13 @@ def compile_cpp(files, args=[], outExt=".o"):
         rc = invoke_gpp(a)
         log("Returned with code %s"%rc, LogLevel.vInfo)
 
+def make_library(files, output, args=[]):
+    pre = ["rcsu", output]
+    pre.extend(args)
+    
+    for file in files:
+        pre.append(file)
+    return invoke_tool("ar", pre)
 
 def invoke_gcc(args):    
     return invoke_tool("gcc", args)
