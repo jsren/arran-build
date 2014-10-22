@@ -62,10 +62,11 @@ CPPFLAGS = [
 sys.path.append(".build")
 
 # Import build libs
-from arran import *
+#from arran import *
 
-# If you're using gcc, import this too
-from gcc_build import *
+# If you're using gcc, import this instead
+from arran_gcc import *
+
 
 # Properties file automatically imported
 ```
