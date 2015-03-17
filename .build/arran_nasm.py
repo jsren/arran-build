@@ -23,7 +23,7 @@ def assemble_nasm(files, args=[], format="elf", outExt=".o"):
         pre.append(macro)
     for inc in ASM_INCLUDE_DIRS:
         pre.append("-i")
-        pre.append(os.path.abspath(inc))
+        pre.append(os.path.abspath(inc) + os.path.sep)
     pre.extend(ASMFLAGS)
     pre.extend(args)
 
