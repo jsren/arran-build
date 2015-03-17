@@ -9,7 +9,7 @@ from __future__ import print_function
 import os
 import sys
 
-from arran import *
+from . import *
 
 # The tools to locate
 TOOLS = []

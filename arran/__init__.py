@@ -1,7 +1,7 @@
 #####################################################
-#         Arran Build Engine Version 1.3.0          #
+#         Arran Build Engine Version 1.3.2          #
 #####################################################
-#             (c) James S Renwick 2014              #
+#             (c) James S Renwick 2015              #
 #####################################################
 
 from __future__ import print_function
@@ -33,7 +33,7 @@ print(Style.BRIGHT)
 print ("""
 __________Arran Build System__________
 
-Version 1.3.0 (c) James S Renwick 2014
+Version 1.3.2 (c) James S Renwick 2015
 """)
 
 if globals().has_key("PROJECT_NAME"):
@@ -57,7 +57,8 @@ if not globals().has_key("TOOLCHAIN"):
 # Cygwin stuff
 os.environ["CYGWIN"] = "nodosfilewarning"
 
-
+# Replaces one extension with another
+# '.' char is explicit.
 def change_ext(path, ext):
     i = path.rfind('.')
     
@@ -160,22 +161,23 @@ class FileFilter:
 
 def search_path(file):
     output = None
-    for dir in os.environ["PATH"].split(os.pathsep):
-        p = os.path.join(dir, file)
-        # Found a valid one
-        if os.path.exists(p):
-            output = p
-            break
-        # Check for default path extensions on Windows
-        if os.name == "nt":
-            for ext in os.environ["PATHEXT"].split(os.pathsep):
-                if os.path.exists(p+ext):
-                    output = p+ext
-                    break
-        # Linux/OSX is more difficult to auto-add extensions
-        # - I'll ignore this for now.
-        # The filenames will have to match perfectly or be given as
-        # properties.
+    if "PATH" in os.environ:
+        for dir in os.environ["PATH"].split(os.pathsep):
+            p = os.path.join(dir, file)
+            # Found a valid one
+            if os.path.exists(p):
+                output = p
+                break
+            # Check for default path extensions on Windows
+            if os.name == "nt" and "PATHEXT" in os.environ:
+                for ext in os.environ["PATHEXT"].split(os.pathsep):
+                    if os.path.exists(p+ext):
+                        output = p+ext
+                        break
+            # Linux/OSX is more difficult to auto-add extensions
+            # - I'll ignore this for now.
+            # The filenames will have to match perfectly or be given as
+            # properties.
     return output
 
 def get_tool_filename(tool):
@@ -184,8 +186,8 @@ def get_tool_filename(tool):
     else:
         return TOOLCHAIN.strip() + "-" + tool
 
-''' Attempts to resovle all required paths. '''
 def find_tools(TOOLS, PATHS):
+    ''' Attempts to resovle all required paths. '''
     # Check through the list of tools
     for (tool,prefix) in TOOLS:
         toolpath = None
