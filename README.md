@@ -59,16 +59,15 @@ CPPFLAGS = [
 ######Build Script
 
 ```python
-sys.path.append(".build")
 
 # Import build libs
 #from arran import *
 
 # If you're using gcc, import this instead
-from arran_gcc import *
+from arran.gcc import *
 
 
-# Properties file automatically imported
+# Properties file (properties.py) automatically imported
 ```
 
 ```python
